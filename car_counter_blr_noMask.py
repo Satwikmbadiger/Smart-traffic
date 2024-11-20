@@ -8,7 +8,7 @@ import numpy as np
 
 cap = cv2.VideoCapture(r'C:\Users\anike\OneDrive\Desktop\DevTrack\YOLO BASICS\blr.mp4') #for video
 
-model = YOLO(r"C:\Users\anike\OneDrive\Desktop\DevTrack\best (1).pt")
+model = YOLO("yolov8n.pt")
 
 
 classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball", "bat", "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed", "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear", "hair drier", "toothbrush"]
@@ -44,6 +44,11 @@ limits_E_B_B =  [670,85,670,230]
 totalCount_E_B_E = []
 totalCount_E_B_B = []
 
+#C_B(5)
+limits_C_B_C = [450,50,640,50]
+limits_E_C_B =  [700,65,700,230]
+totalCount_C_B_C = []
+totalCount_E_C_B = []
 
 while True:
   ##A_D(1)
@@ -92,6 +97,11 @@ while True:
   #E_B(4)
   cv2.line(img,(limits_E_B_E[0],limits_E_B_E[1]) , (limits_E_B_E[2],limits_E_B_E[3]) ,(0,0,255) , 4)
   cv2.line(img,(limits_E_B_B[0],limits_E_B_B[1]) , (limits_E_B_B[2],limits_E_B_B[3]) ,(0,0,255) , 4)
+
+  #C_B(5)
+  cv2.line(img,(limits_E_C_B[0],limits_E_C_B[1]) , (limits_E_C_B[2],limits_E_C_B[3]) ,(0,0,255) , 4)
+  cv2.line(img,(limits_C_B_C[0],limits_C_B_C[1]) , (limits_C_B_C[2],limits_C_B_C[3]) ,(0,0,255) , 4)
+
 
 
   for result in resultsTracker:
@@ -150,10 +160,21 @@ while True:
       if totalCount_E_B_B.count(ID)==0 and totalCount_E_B_E.count(ID)==1:
         totalCount_E_B_B.append(ID)
         cv2.line(img,(limits_E_B_B[0],limits_E_B_B[1]) , (limits_E_B_B[2],limits_E_B_B[3]) ,(0,255,0) , 5)
+
+    #C_B(5)
+    if limits_C_B_C[0]-15<=cx<= limits_C_B_C[0]+25  and limits_C_B_C[1]-25 <= cy <=limits_C_B_C[3]+10:
+      if totalCount_C_B_C.count(ID)==0 and totalCount_E_B_E.count(ID)==0:
+        totalCount_C_B_C.append(ID)
+        cv2.line(img,(limits_C_B_C[0],limits_C_B_C[1]) , (limits_C_B_C[2],limits_C_B_C[3]) ,(0,255,0) , 5)
+
+    if limits_E_C_B[0]-35<=cx<= limits_E_C_B[0]+35  or limits_E_C_B[2]-35<=cx<= limits_E_C_B[2]+35   and limits_E_C_B[3]-25 <= cy <=limits_E_C_B[3]+25 or  limits_E_C_B[1]-25 <= cy <=limits_E_C_B[1]+25:
+      if totalCount_E_C_B.count(ID)==0 and totalCount_E_B_E.count(ID)==0 and totalCount_C_B_C.count(ID)==1:
+        totalCount_E_C_B.append(ID)
+        cv2.line(img,(limits_E_C_B[0],limits_E_C_B[1]) , (limits_E_C_B[2],limits_E_C_B[3]) ,(0,255,0) , 5)
   
   
   
-  cvzone.putTextRect(img , f'Count_A_D:{len(totalCount_A_D_D)}  Count_A_F:{len(totalCount_A_F_F)} Count_E_D:{len(totalCount_E_D_D)} Count_E_B:{len(totalCount_E_B_B)}',(30 ,450) , scale=1, thickness=2)
+  cvzone.putTextRect(img , f'Count_A_D:{len(totalCount_A_D_D)}  Count_A_F:{len(totalCount_A_F_F)} Count_E_D:{len(totalCount_E_D_D)} Count_E_B:{len(totalCount_E_B_B)} Count_C_B:{len(totalCount_E_C_B)}',(30 ,450) , scale=1, thickness=2)
 
   cv2.imshow('image',img)
   #cv2.imshow('imageRegion',imgRegion)
