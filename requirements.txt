@@ -1,0 +1,10 @@
+numpy
+opencv-python-headless
+torch
+matplotlib
+statsmodels
+seaborn
+scipy
+filterpy
+ultralytics
+cvzone
