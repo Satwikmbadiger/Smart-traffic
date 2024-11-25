@@ -1,20 +1,16 @@
-import matplotlib.pyplot as plt
-from statsmodels.tsa.arima_model import ARIMA
+from sklearn.linear_model import LinearRegression
+import numpy as np
 
-def predict_traffic_flow(traffic_counts, forecast_duration_sec=90):
-    # Forecast duration in terms of frames (assuming 1-second intervals for simplicity)
-    arima_model = ARIMA(traffic_counts, order=(1, 1, 1))
-    arima_result = arima_model.fit()
-    future_counts = arima_result.forecast(steps=forecast_duration_sec)
+def predict_traffic(counts_over_time, timestamps, predict_interval):
+    future_counts = {}
+    time_array = np.array(timestamps).reshape(-1, 1)
 
-    # Plot original and predicted traffic counts
-    plt.figure(figsize=(10, 5))
-    plt.plot(traffic_counts, label="Original Traffic Count")
-    plt.plot(range(len(traffic_counts), len(traffic_counts) + forecast_duration_sec), future_counts, label="Predicted Traffic Count")
-    plt.xlabel("Frames")
-    plt.ylabel("Traffic Count")
-    plt.legend()
-    plt.title("Traffic Count Prediction")
-    plt.show()
+    for route, counts in counts_over_time.items():
+        counts_array = np.array(counts)
+        model = LinearRegression()
+        model.fit(time_array, counts_array)
+        future_time = np.array([[timestamps[-1] + predict_interval]])
+        prediction = model.predict(future_time)
+        future_counts[route] = max(0, int(prediction[0]))
 
     return future_counts
