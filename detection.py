@@ -10,6 +10,7 @@ def detect_track(video_path):
 
   model = YOLO("yolov8n.pt")
 
+  A_D, A_F, E_D, E_B, C_B = 0, 0, 0, 0, 0
 
   classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball", "bat", "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed", "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear", "hair drier", "toothbrush"]
 
@@ -56,32 +57,34 @@ def detect_track(video_path):
     success , img = cap.read()
     #imgRegion = cv2.bitwise_and(img,mask)
 
+    if not success:  # End of video or error reading frame
+      print("End of video or unable to read frame. Exiting...")
+      break  # Exit the loop when the video ends
+
     results = model(img , stream=True)
 
-    detections = np.empty((0,5))
-    
+    detections = []  # Using a list to collect detections temporarily
+
     for r in results:
-      boxes = r.boxes
-      for box in boxes:
-        x1,y1,x2,y2 = box.xyxy[0]
-        x1,y1,x2,y2 = int(x1),int(y1),int(x2),int(y2)
+        boxes = r.boxes
+        for box in boxes:
+            x1, y1, x2, y2 = map(int, box.xyxy[0])  # Convert to integers
+            conf = round(float(box.conf[0]), 2)  # Confidence as float
+            cls = int(box.cls[0])
+            currentClass = classNames[cls]
 
-        w , h   = x2 - x1 , y2 - y1
+            if currentClass in ['car', 'bus', 'motorbike', 'truck'] and conf > 0.3:
+                detections.append([x1, y1, x2, y2, conf])  # Collect as list
 
-        conf = math.ceil((box.conf[0] * 100))/100
-        
-        #class name
-        cls =int( box.cls[0])
-        currentClass = classNames[cls] 
+        # Convert to NumPy array after collection
+        if len(detections) > 0:
+            detections = np.array(detections)
+        else:
+            detections = np.empty((0, 5))  # Empty array with shape (0, 5)
 
-        if currentClass == 'car' or currentClass == 'bus' or currentClass == 'motorbike' or currentClass == 'truck'  and conf > 0.3:
-          #cvzone.putTextRect(img , f'{currentClass}  {conf}',(max(0,x1),max(35 ,y1)) , scale=1, thickness=1 , offset=3)
-          #cvzone.cornerRect(img, (x1, y1, w, h), l=9,rt=5)
-          currentArray = np.array([x1,y1,x2,y2,conf])
-          detections= np.vstack((detections , currentArray))
+    # Update tracker only if detections exist
+    resultsTracker = tracker.update(detections) if detections.shape[0] > 0 else np.empty((0, 5))
 
-    
-    resultsTracker = tracker.update(detections)
     #A_D(1)
     cv2.line(img,(limits_A_D_A[0],limits_A_D_A[1]) , (limits_A_D_A[2],limits_A_D_A[3]) ,(0,0,255) , 5)
     cv2.line(img,(limits_A_D_D[0],limits_A_D_D[1]) , (limits_A_D_D[2],limits_A_D_D[3]) ,(0,0,255) , 2)
@@ -181,6 +184,11 @@ def detect_track(video_path):
     #cv2.imshow('imageRegion2',imgRegion2)
     cv2.waitKey(1) 
 
-    return {'A_D': len(totalCount_A_D_D), 'A_F': len(totalCount_A_F_F), 'E_D': len(totalCount_E_D_D), 'E_B': len(totalCount_E_B_B), 'C_B': len(totalCount_E_C_B)}
+    # Return counts for each area
+    A_D = len(totalCount_A_D_D)
+    A_F = len(totalCount_A_F_F)
+    E_D = len(totalCount_E_D_D)
+    E_B = len(totalCount_E_B_B)
+    C_B = len(totalCount_E_C_B)
 
-detect_track('blr.mp4')
+  return A_D, A_F, E_D, E_B, C_B
