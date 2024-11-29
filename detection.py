@@ -80,7 +80,12 @@ def detect_track(video_path):
         if len(detections) > 0:
             detections = np.array(detections)
         else:
-            detections = np.empty((0, 5))  # Empty array with shape (0, 5)
+            detections = np.empty((0, 5))
+            
+        if detections.ndim == 2 and detections.shape[1] == 5:
+          resultsTracker = tracker.update(detections)
+        else:
+          resultsTracker = np.empty((0,5))
 
     # Update tracker only if detections exist
     resultsTracker = tracker.update(detections) if detections.shape[0] > 0 else np.empty((0, 5))
@@ -182,13 +187,13 @@ def detect_track(video_path):
     cv2.imshow('image',img)
     #cv2.imshow('imageRegion',imgRegion)
     #cv2.imshow('imageRegion2',imgRegion2)
-    cv2.waitKey(1) 
+    cv2.waitKey(1)
 
     # Return counts for each area
-    A_D = len(totalCount_A_D_D)
-    A_F = len(totalCount_A_F_F)
-    E_D = len(totalCount_E_D_D)
-    E_B = len(totalCount_E_B_B)
-    C_B = len(totalCount_E_C_B)
+  A_D = len(totalCount_A_D_D)
+  A_F = len(totalCount_A_F_F)
+  E_D = len(totalCount_E_D_D)
+  E_B = len(totalCount_E_B_B)
+  C_B = len(totalCount_E_C_B)
 
   return A_D, A_F, E_D, E_B, C_B
