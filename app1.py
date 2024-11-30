@@ -17,8 +17,8 @@ def main():
     #st.image(
     #    img,
     #    caption="Image of a lambo",
-    ##    width=200,
-     #   channels="BGR"
+    ##   width=200,
+    #    channels="BGR"
     #)
     if img is not None:
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
@@ -64,7 +64,8 @@ def main():
         if cap.isOpened()==False:
             st.write("Error opening video stream or file")
             return
-
+        
+    '''
         st.write("Processing frames...")
         frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -87,15 +88,18 @@ def main():
                 #    break
             else:
                 break
-    
-    
+        
         cap.release()
     #cv2.destroyAllWindows()
-
-
+    '''
+    
     result=""
+
+
     if st.button("Predict"):
-        result=predict_note_authentication(variance,skewness,curotosis,entropy) 
+        result="Traffic is High"
+    
+
     st.success('The output is {}'.format(result))
     if st.button("About"):
         st.text("Let's Learn")
@@ -107,7 +111,5 @@ def main():
         unsafe_allow_html=True
     )
     
-
 if __name__=='__main__':
     main()
-    
