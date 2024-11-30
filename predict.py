@@ -5,6 +5,8 @@ def predict_traffic_flow(A_D, A_F, E_D, E_B, C_B, timestamps, predict_interval):
     def ensure_list(var, size):
         if isinstance(var, int):
             return [var] * size
+        elif isinstance(var, list) and len(var) != size:
+            raise ValueError(f"Input array must have the same length as timestamps. Expected {size} elements, but got {len(var)}.")
         return var
 
     size = len(timestamps)
@@ -38,6 +40,6 @@ def predict_traffic_flow(A_D, A_F, E_D, E_B, C_B, timestamps, predict_interval):
         future_time = np.array([[timestamps[-1] + predict_interval]])
         prediction = model.predict(future_time)
 
-        future_counts[route] = max(0, int(prediction[0]))
+        future_counts[route] = max(0, round(prediction[0]))
 
     return future_counts

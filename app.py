@@ -1,5 +1,5 @@
 import streamlit as st
-from detect_ import detect_track
+from detection import detect_track
 from predict import predict_traffic_flow
 import json
 import os
