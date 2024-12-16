@@ -2,44 +2,23 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 
 def predict_traffic_flow(A_D, A_F, E_D, E_B, C_B, timestamps, predict_interval):
-    def ensure_list(var, size):
-        if isinstance(var, int):
-            return [var] * size
-        elif isinstance(var, list) and len(var) != size:
-            raise ValueError(f"Input array must have the same length as timestamps. Expected {size} elements, but got {len(var)}.")
-        return var
-
-    size = len(timestamps)
-    A_D = ensure_list(A_D, size)
-    A_F = ensure_list(A_F, size)
-    E_D = ensure_list(E_D, size)
-    E_B = ensure_list(E_B, size)
-    C_B = ensure_list(C_B, size)
-
-    lengths = [len(A_D), len(A_F), len(E_D), len(E_B), len(C_B), len(timestamps)]
-    if len(set(lengths)) != 1:
-        raise ValueError(f"Input arrays must have the same length. Lengths are: {lengths}")
-
-    counts_over_time = {
-        "A_D": A_D,
-        "A_F": A_F,
-        "E_D": E_D,
-        "E_B": E_B,
-        "C_B": C_B
-    }
-
-    future_counts = {}
+    # Ensure inputs are lists and have the same length as timestamps
+    def ensure_list(var):
+        return [var] * len(timestamps) if isinstance(var, int) else var
+    
+    # Ensure all input arrays are the same length
+    A_D, A_F, E_D, E_B, C_B = map(ensure_list, [A_D, A_F, E_D, E_B, C_B])
+    
+    # Prepare data
     time_array = np.array(timestamps).reshape(-1, 1)
+    routes = {'A_D': A_D, 'A_F': A_F, 'E_D': E_D, 'E_B': E_B, 'C_B': C_B}
+    future_counts = {}
 
-    for route, counts in counts_over_time.items():
-        counts_array = np.array(counts)
-
+    # Train model and predict for each route
+    for route, counts in routes.items():
         model = LinearRegression()
-        model.fit(time_array, counts_array)
-
+        model.fit(time_array, np.array(counts))
         future_time = np.array([[timestamps[-1] + predict_interval]])
-        prediction = model.predict(future_time)
-
-        future_counts[route] = max(0, round(prediction[0]))
+        future_counts[route] = max(0, round(model.predict(future_time)[0]))
 
     return future_counts
