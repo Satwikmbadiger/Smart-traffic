@@ -189,11 +189,19 @@ def detect_track(video_path):
     #cv2.imshow('imageRegion2',imgRegion2)
     cv2.waitKey(1)
 
-    # Return counts for each area
+
+  # Return counts for each area
   A_D = len(totalCount_A_D_D)
   A_F = len(totalCount_A_F_F)
   E_D = len(totalCount_E_D_D)
   E_B = len(totalCount_E_B_B)
   C_B = len(totalCount_E_C_B)
+
+  #convert to list
+  A_D = [A_D]
+  A_F = [A_F]
+  E_D = [E_D]
+  E_B = [E_B]
+  C_B = [C_B]
 
   return A_D, A_F, E_D, E_B, C_B
